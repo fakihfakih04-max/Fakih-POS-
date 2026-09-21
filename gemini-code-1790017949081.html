@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fakih POS & Management System</title>
+    <!-- FontAwesome icons & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-card: #334155;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f97316;
+            --text-light: #f8fafc;
+            --text-dim: #94a3b8;
+            --border-line: #475569;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-light); height: 100vh; display: flex; overflow: hidden; }
+
+        /* Sidebar Nav */
+        sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            border-left: 1px solid var(--border-line);
+            display: flex;
+            flex-direction: column;
+        }
+        .brand {
+            padding: 1.2rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            border-bottom: 1px solid var(--border-line);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .menu-list {
+            list-style: none;
+            padding: 1rem 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+            border-right: 4px solid var(--accent-blue);
+        }
+
+        /* Main Container */
+        main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* Top Header */
+        header {
+            height: 60px;
+            background-color: var(--bg-sidebar);
+            border-bottom: 1px solid var(--border-line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+        }
+        .page-title { font-size: 1.2rem; font-weight: 700; }
+
+        /* Content Views */
+        .content-area { flex: 1; padding: 1.5rem; overflow-y: auto; }
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
+
+        /* UI Components */
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .card { background: var(--bg-sidebar); padding: 1.2rem; border-radius: 8px; border: 1px solid var(--border-line); }
+        .card h4 { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .card .val { font-size: 1.6rem; font-weight: 700; }
+
+        table { width: 100%; border-collapse: collapse; background: var(--bg-sidebar); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: right; border-bottom: 1px solid var(--border-line); font-size: 0.9rem; }
+        th { background: var(--bg-card); color: var(--text-dim); font-weight: 600; }
+
+        .btn {
+            padding: 8px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 8px; color: #fff;
+        }
+        .btn-primary { background: var(--accent-blue); }
+        .btn-success { background: var(--accent-green); }
+        .btn-danger { background: var(--accent-red); }
+        .btn-warning { background: var(--accent-orange); }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; background: var(--bg-sidebar); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-line); margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 6px; color: var(--text-dim); font-size: 0.85rem; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 8px 12px; background: var(--bg-dark); border: 1px solid var(--border-line);
+            border-radius: 6px; color: #fff; outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <sidebar>
+        <div class="brand">
+            <i class="fa-solid fa-layer-group"></i> Fakih POS Mgmt
+        </div>
+        <ul class="menu-list">
+            <li class="menu-item active" onclick="showView('dashboard')"><i class="fa-solid fa-chart-pie"></i> لوحة التحكم</li>
+            <li class="menu-item" onclick="showView('sales')"><i class="fa-solid fa-cart-shopping"></i> المبيعات (Sales)</li>
+            <li class="menu-item" onclick="showView('purchases')"><i class="fa-solid fa-truck-ramp-box"></i> المشتريات (Purchases)</li>
+            <li class="menu-item" onclick="showView('returns')"><i class="fa-solid fa-rotate-left"></i> المرتجعات (Returns)</li>
+            <li class="menu-item" onclick="showView('stock-docs')"><i class="fa-solid fa-file-invoice-dollar"></i> مستندات المخزون</li>
+            <li class="menu-item" onclick="showView('price-lists')"><i class="fa-solid fa-tags"></i> قوائم الأسعار (Price Lists)</li>
+            <li class="menu-item" onclick="showView('inventory')"><i class="fa-solid fa-boxes-stacked"></i> المخزون والمنتجات</li>
+        </ul>
+    </sidebar>
+
+    <!-- Main Content Area -->
+    <main>
+        <header>
+            <div class="page-title" id="header-title">لوحة التحكم الرئيسية</div>
+            <div><i class="fa-solid fa-user-circle" style="font-size: 1.4rem;"></i></div>
+        </header>
+
+        <div class="content-area">
+
+            <!-- 1. DASHBOARD VIEW -->
+            <div id="view-dashboard" class="view-panel active">
+                <div class="grid-cards">
+                    <div class="card"><h4>إجمالي المبيعات</h4><div class="val" style="color:var(--accent-green);">$12,450.00</div></div>
+                    <div class="card"><h4>المشتريات الكلية</h4><div class="val" style="color:var(--accent-blue);">$8,200.00</div></div>
+                    <div class="card"><h4>المرتجعات</h4><div class="val" style="color:var(--accent-red);">$350.00</div></div>
+                    <div class="card"><h4>قيمة المخزون الحالية</h4><div class="val" style="color:var(--accent-purple);">$24,100.00</div></div>
+                </div>
+                <h3>أحدث الحركات التشغيلية</h3>
+                <br>
+                <table>
+                    <thead><tr><th>المستند</th><th>النوع</th><th>الطرف الثاني</th><th>المبلغ</th><th>الحالة</th></tr></thead>
+                    <tbody>
+                        <tr><td>#INV-1002</td><td>مبيعات</td><td>زبون نقدي</td><td>$120.00</td><td>مكتمل</td></tr>
+                        <tr><td>#PO-501</td><td>مشتريات</td><td>شركة التوريد المتكاملة</td><td>$1,500.00</td><td>مستلم</td></tr>
+                        <tr><td>#RET-201</td><td>مرتجع مبيعات</td><td>أحمد خليل</td><td>$45.00</td><td>مكتمل</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 2. SALES VIEW -->
+            <div id="view-sales" class="view-panel">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                    <h3>سجل المبيعات والتقارير</h3>
+                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> فاتورة مبيعات جديدة</button>
+                </div>
+                <table>
+                    <thead><tr><th>رقم الفاتورة</th><th>التاريخ</th><th>العميل</th><th>المجموع</th><th>الضريبة</th><th>الإجمالي</th></tr></thead>
+                    <tbody>
+                        <tr><td>INV-1001</td><td>2026-09-20</td><td>عميل عادي</td><td>$100.00</td><td>$10.00</td><td>$110.00</td></tr>
+                        <tr><td>INV-1002</td><td>2026-09-21</td><td>شركة الأمل</td><td>$250.00</td><td>$25.00</td><td>$275.00</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 3. PURCHASES VIEW -->
+            <div id="view-purchases" class="view-panel">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                    <h3>إدارة المشتريات والموردين (Purchases)</h3>
+                    <button class="btn btn-success"><i class="fa-solid fa-cart-plus"></i> أمر شراء جديد</button>
+                </div>
+                <table>
+                    <thead><tr><th>رقم الشراء</th><th>المورد</th><th>التاريخ</th><th>الحالة</th><th>الإجمالي</th></tr></thead>
+                    <tbody>
+                        <tr><td>PO-901</td><td>مورد المواد الغذائية</td><td>2026-09-15</td><td>مستلم بالكامل</td><td>$3,200.00</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 4. RETURNS VIEW -->
+            <div id="view-returns" class="view-panel">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                    <h3>إدارة المرتجعات (Sales & Purchase Returns)</h3>
+                    <button class="btn btn-danger"><i class="fa-solid fa-rotate-left"></i> إنشاء مستند إرجاع</button>
+                </div>
+                <table>
+                    <thead><tr><th>رمز المرتجع</th><th>النوع</th><th>المرجع الأصلي</th><th>السبب</th><th>المبلغ</th></tr></thead>
+                    <tbody>
+                        <tr><td>RET-001</td><td>مرتجع مبيعات</td><td>INV-1001</td><td>تالف</td><td>$25.00</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 5. STOCK DOCUMENTS VIEW -->
+            <div id="view-stock-docs" class="view-panel">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                    <h3>مستندات وتعديلات المخزون (Stock Documents)</h3>
+                    <button class="btn btn-warning"><i class="fa-solid fa-file-pen"></i> جرد / تعديل مخزون</button>
+                </div>
+                <table>
+                    <thead><tr><th>رقم المستند</th><th>نوع الحركة</th><th>المستودع</th><th>التاريخ</th><th>الملاحظات</th></tr></thead>
+                    <tbody>
+                        <tr><td>DOC-701</td><td>إدخال مخزون أول المدة</td><td>المستودع الرئيسي</td><td>2026-01-01</td><td>تسوية أولية</td></tr>
+                        <tr><td>DOC-702</td><td>تعديل جردي (نقص)</td><td>المستودع الرئيسي</td><td>2026-09-10</td><td>فروقات جرد سنوي</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 6. PRICE LISTS VIEW -->
+            <div id="view-price-lists" class="view-panel">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                    <h3>قوائم الأسعار والعروض (Price Lists)</h3>
+                    <button class="btn btn-primary"><i class="fa-solid fa-tags"></i> قائمة أسعار جديدة</button>
+                </div>
+                <table>
+                    <thead><tr><th>اسم القائمة</th><th>نوع التسعير</th><th>نسبة التغيير / الخصم</th><th>الحالة</th></tr></thead>
+                    <tbody>
+                        <tr><td>قائمة البيع بالجملة</td><td>تخفيض محدد</td><td>-15%</td><td>نشط</td></tr>
+                        <tr><td>قائمة أسعار VIP</td><td>خاصة</td><td>-20%</td><td>نشط</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 7. INVENTORY VIEW -->
+            <div id="view-inventory" class="view-panel">
+                <h3>إدارة كرت المنتجات والمواد</h3>
+                <br>
+                <div class="form-grid">
+                    <div class="form-group"><label>رمز الباركود</label><input type="text" placeholder="1000123"></div>
+                    <div class="form-group"><label>اسم المنتج</label><input type="text" placeholder="اسم الماده"></div>
+                    <div class="form-group"><label>سعر التكلفة</label><input type="number" placeholder="0.00"></div>
+                    <div class="form-group"><label>سعر البيع</label><input type="number" placeholder="0.00"></div>
+                </div>
+                <table>
+                    <thead><tr><th>الباركود</th><th>المنتج</th><th>سعر التكلفة</th><th>سعر البيع</th><th>المخزون المتوفر</th></tr></thead>
+                    <tbody>
+                        <tr><td>101</td><td>قهوة اسبريسو</td><td>$0.80</td><td>$2.50</td><td>150</td></tr>
+                        <tr><td>102</td><td>برجر دجاج</td><td>$2.50</td><td>$6.00</td><td>45</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const viewTitles = {
+            'dashboard': 'لوحة التحكم الرئيسية',
+            'sales': 'إدارة المبيعات (Sales)',
+            'purchases': 'إدارة المشتريات (Purchases)',
+            'returns': 'إدارة المرتجعات (Returns)',
+            'stock-docs': 'مستندات حركة المخزون (Stock Documents)',
+            'price-lists': 'قوائم الأسعار والعروض (Price Lists)',
+            'inventory': 'دليل المنتجات والمخزون'
+        };
+
+        function showView(viewId) {
+            // Hide all views
+            document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+
+            // Show target view
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            // Update Header Title
+            document.getElementById('header-title').innerText = viewTitles[viewId] || 'Fakih POS';
+        }
+    </script>
+</body>
+</html>
